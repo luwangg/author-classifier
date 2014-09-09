@@ -4,12 +4,18 @@
 # http://scikit-learn.org/stable/modules/cross_validation.html
 
 import nltk.data
-import sklearn, pprint, random
+import sklearn, pprint, random, numpy, scipy
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn import cross_validation
 from sklearn import datasets
 
 tokenizer = nltk.data.load('tokenizers/punkt/english.pickle')
+stem = nltk.stem.PorterStemmer()
+
+class CountVectorizer2(CountVectorizer):
+    def build_analyzer(self):
+        analyzer = CountVectorizer.build_analyzer(self)
+        return lambda x: (stem.stem(y) for y in analyzer(x))
 
 # list of classes, file contents, and preamble delineators
 fulltext = {"Conan Doyle":("pg1661.txt","ADVENTURE I"), 
@@ -25,41 +31,31 @@ for k,v in fulltext.items():
     for c in fulltext[k]:
         sent[c] = k;
 
-
-#pprint.pprint(sent);
-count_vect = CountVectorizer(lowercase=True, stop_words="english",)
-
+# convert to indexed form
+count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii")
+#count_vect = CountVectorizer(lowercase=True, stop_words="english", strip_accents="ascii")
 a  = count_vect.fit_transform(sent.keys())
-#print count_vect.vocabulary_
-print a.shape
+target =  numpy.array(sent.values())
 
-Ntrain = 30000
+# set up clasifier
 from sklearn.naive_bayes import MultinomialNB
-clf = MultinomialNB().fit(a[0:Ntrain], sent.values()[0:Ntrain])
-#clf = MultinomialNB().fit(a, sent.keys())
 
-Ntest = 300
-predicted = clf.predict(a[Ntrain:Ntrain+Ntest])
-actual = sent.values()[Ntrain:Ntrain+Ntest];
-rlist = zip(predicted,predicted == actual)
+avals = {0:"ML",
+        0.5:"Good-Turing",
+        1:"Laplace",
+        2:"Two"};
 
-rstat = dict((i,rlist.count(i)) for i in rlist);
-pprint.pprint( rstat )
+for alpha,aname in avals.items():
+    
+    clf = MultinomialNB(alpha=alpha)
 
-tot = len(predicted)
-ncorrect = sum( map( lambda x: rstat[x], filter( lambda x: x[1], rstat.keys() ) ) );
-nwrong = tot - ncorrect;
-print "correct classification: %f percent, incorrect: %f percent"%(100.0*ncorrect/tot, 100.0*nwrong/tot)
+    # train and test classifier / cross validation
+    print "Cross validating NB classifier... (alpha=%f [%s])"%(alpha,aname)
+    scores = cross_validation.cross_val_score( clf, a, target, cv=10)
+    #scores = cross_validation.cross_val_score( clf, a, target, cv=5)
+    print scores
+    print("Accuracy: %0.2f (+/- %0.2f)  [Mis-classification = %0.2f]" % (scores.mean(), scores.std() * 2, 1-scores.mean()))
 
-#X_train_counts = count_vect.fit_transform(d.values())
-#print X_train_counts.size
-#print count_vect.get_stop_words();
-#print count_vect.get_feature_names();
 
-#print dir(count_vect)
-#print count_vect.stop_words
-#print X_train_counts
-
-#print d;
 
 
