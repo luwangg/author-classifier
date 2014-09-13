@@ -17,7 +17,6 @@ class CountVectorizer2(CountVectorizer):
         analyzer = CountVectorizer.build_analyzer(self)
         return lambda x: (stem.stem(y) for y in analyzer(x))
 
-
 L = 10;
 
 for ll in range(0,L):
@@ -47,8 +46,13 @@ for ll in range(0,L):
             sent[c] = k;
 
     # convert to indexed form
-    count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii")
+    #count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii", min_df=2)
+    count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii", min_df=5)
+    #count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii", min_df=1)
+    #count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii")
+    print count_vect
     a  = count_vect.fit_transform(sent.keys())
+    print "Freq vect shape: " + str(a.shape)
     target =  numpy.array(sent.values())
     
     # set up clasifier
