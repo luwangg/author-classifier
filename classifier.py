@@ -46,8 +46,14 @@ for ll in range(0,L):
             sent[c] = k;
 
     # convert to indexed form
+
+    # option one (force min_df = 2 to reduce features)
     #count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii", min_df=2)
-    count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii", min_df=5)
+
+    # option two (cap max_features at 100)
+    count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii", min_df=5, max_features=100)
+
+    #count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii", min_df=5)
     #count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii", min_df=1)
     #count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii")
     print count_vect
