@@ -74,7 +74,8 @@ for ll in Lr:
     # option two (cap max_features at 100)
     #count_vect = CountVectorizer2(lowercase=True, stop_words="english", strip_accents="ascii", min_df=5, max_features=500)
 
-    for F in range(1,100):
+    for F in [100,500,1000,10000]:
+    #for F in range(1,100):
     #for F in range(100,10100,100):
 #    for F in [100,200,300,400,500,600,700,800,900,1000,1500,2000]:
         print "F = %d"%(F)
@@ -94,7 +95,7 @@ for ll in Lr:
             0.5:"Good-Turing",
             1:"Laplace",
             2:"Two"};
-        avals = {1:"Laplace"};
+        #avals = {1:"Laplace"};
     
         for alpha,aname in avals.items():
         
